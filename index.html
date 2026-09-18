@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBA Cohort Optimizer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/tabler-icons.min.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    :root {
+      --navy: #003057;
+      --navy-light: #0a4d8c;
+      --gold: #B3A369;
+      --gold-dark: #8a7f4e;
+      --bg: #f4f3ef;
+      --white: #ffffff;
+      --text-dark: #1a1a1a;
+      --text-muted: #6b7280;
+      --border: #e3ddd0;
+      --danger: #b3272d;
+      --danger-dark: #8f1f24;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); padding: 2rem; line-height: 1.6; color: var(--text-dark); }
+    .container { max-width: 960px; margin: 0 auto; background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+
+    .masthead { background: var(--navy); padding: 1.75rem 2rem; border-bottom: 4px solid var(--gold); display: flex; align-items: center; gap: 14px; }
+    .masthead-badge { width: 42px; height: 42px; border-radius: 6px; background: var(--gold); color: var(--navy); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; letter-spacing: 0.5px; flex-shrink: 0; }
+    .masthead h1 { color: var(--white); font-size: 22px; font-weight: 700; }
+    .masthead p { color: var(--gold); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+    .body-pad { padding: 2rem; }
+
+    .banner { padding: 10px 16px; background: #fff7e6; border: 1px solid #f0d999; color: #7a5b00; font-size: 13px; border-radius: 6px; margin-bottom: 1.5rem; }
+    .banner.info { background: #eaf2fb; border-color: #bcd7f2; color: var(--navy); }
+    .banner strong { font-weight: 700; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+    .tab { padding: 12px 18px; cursor: pointer; border: none; background: transparent; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; transition: all 0.15s; margin-bottom: -1px; }
+    .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .tab:hover { color: var(--navy); background: transparent; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .form-section { background: var(--bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border); }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    input, select { width: 100%; padding: 8px 12px; border: 1px solid #d6d0c2; border-radius: 6px; font-size: 14px; background: var(--white); color: var(--text-dark); }
+    input:focus, select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0, 48, 87, 0.12); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    button { padding: 10px 16px; background: var(--navy); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s; }
+    button:hover { background: var(--navy-light); }
+    button.secondary { background: var(--white); color: var(--navy); border: 1px solid var(--navy); }
+    button.secondary:hover { background: var(--bg); }
+    button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+    button.danger:hover { background: var(--danger); color: var(--white); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .link-btn { background: none; border: none; color: var(--navy); text-decoration: underline; cursor: pointer; font-size: 13px; font-weight: 600; padding: 0; }
+    .link-btn:hover { background: none; color: var(--navy-light); }
+
+    .field-error { color: var(--danger); font-size: 12px; margin-top: 6px; display: none; }
+    .field-error.show { display: block; }
+    .field-success { color: #1a7a3c; font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
+    .field-success.show { display: block; }
+
+    .search-row { display: flex; gap: 10px; margin-bottom: 1rem; align-items: center; }
+    .search-row input { flex: 1; }
+
+    .card { padding: 12px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border); margin-bottom: 12px; }
+    .card h4 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--navy); }
+    .card p { margin: 4px 0; font-size: 13px; color: var(--text-muted); }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+    .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 13px; grid-column: 1 / -1; }
+    .card-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .card-actions button { flex: 1; padding: 6px; font-size: 12px; }
+
+    .stat { text-align: center; padding: 1rem; background: var(--navy); border-radius: 6px; }
+    .stat-number { font-size: 24px; font-weight: 700; color: var(--gold); }
+    .stat-label { font-size: 12px; color: var(--white); opacity: 0.85; margin-top: 4px; }
+
+    .skill-bar { margin-bottom: 12px; }
+    .skill-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+    .skill-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .skill-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); border-radius: 3px; }
+
+    .teams-toolbar { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+    .team-card { padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1rem; }
+    .team-card h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--navy); }
+    .team-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; flex-wrap: wrap; gap: 6px; }
+    .team-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: var(--gold); color: var(--navy); }
+    .team-members { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+    .member { padding: 8px; background: var(--white); border-radius: 6px; border: 0.5px solid var(--border); font-size: 12px; }
+    .member-name { font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .member-conc { color: var(--gold-dark); font-size: 11px; margin-bottom: 4px; font-weight: 600; }
+    .member-skills { color: var(--text-muted); line-height: 1.4; font-size: 11px; margin-bottom: 4px; }
+    .member-contact { color: var(--text-muted); font-size: 11px; }
+    .member-contact i { width: 12px; }
+    .team-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); padding-top: 8px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+    .team-footer button { font-size: 12px; padding: 6px 10px; }
+    .error { color: var(--danger); font-size: 13px; margin-top: 4px; }
+
+    .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+    .dash-header h2 { font-size: 18px; font-weight: 700; color: var(--navy); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
+    .modal { background: var(--white); padding: 1.5rem; border-radius: 10px; max-width: 360px; width: 100%; }
+    .modal h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 1rem; }
+    .modal-actions button { flex: 1; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 640px) {
+      body { padding: 0; }
+      .container { border-radius: 0; }
+      .masthead { padding: 1.25rem 1.25rem; }
+      .body-pad { padding: 1.25rem; }
+      .grid-2, .grid-3, .team-members { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="masthead">
+      <div class="masthead-badge">GT</div>
+      <div>
+        <h1>MBA Cohort Optimizer</h1>
+        <p>Team Formation &amp; Skill Analytics</p>
+      </div>
+    </div>
+
+    <div class="body-pad">
+      <div id="cloudBanner" class="banner hidden"></div>
+
+      <!-- Public join form: visible to everyone, students self-submit or update here -->
+      <div id="joinSection">
+        <div class="form-section">
+          <h3 id="formTitle" style="margin-bottom: 0.35rem; font-size: 16px; font-weight: 700; color: var(--navy);">Join the cohort</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem;">Enter your email first -- if you've already submitted, your info will load automatically so you can update it.</p>
+
+          <div class="grid-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="emailInput" placeholder="jsmith@gatech.edu">
+            </div>
+            <div class="form-group">
+              <label>Phone <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+              <input type="tel" id="phoneInput" placeholder="(404) 555-0123">
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="nameInput" placeholder="John Smith">
+            </div>
+            <div class="form-group">
+              <label>Concentration</label>
+              <input type="text" id="concInput" placeholder="Finance">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0.5rem;">
+            <label>Top 3 skills (1=novice, 5=expert)</label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="grid-3">
+                <select id="skill1">
+                  <option value="">Select skill</option>
+                  <option>Financial Analysis & Modeling</option>
+                  <option>Strategic Thinking</option>
+                  <option>Data Analysis & Analytics</option>
+                  <option>Operations & Supply Chain</option>
+                  <option>Marketing & Communications</option>
+                  <option>Leadership & Collaboration</option>
+                  <option>Writing & Research</option>
+                  <option>Presentation Skills</option>
+                </select>
+                <input type="number" id="skill1Rank" min="1" max="5" value="3">
+              </div>
+              <div class="grid-3">
+                <select id="skill2">
+                  <option value="">Select skill</option>
+                  <option>Financial Analysis & Modeling</option>
+                  <option>Strategic Thinking</option>
+                  <option>Data Analysis & Analytics</option>
+                  <option>Operations & Supply Chain</option>
+                  <option>Marketing & Communications</option>
+                  <option>Leadership & Collaboration</option>
+                  <option>Writing & Research</option>
+                  <option>Presentation Skills</option>
+                </select>
+                <input type="number" id="skill2Rank" min="1" max="5" value="3">
+              </div>
+              <div class="grid-3">
+                <select id="skill3">
+                  <option value="">Select skill</option>
+                  <option>Financial Analysis & Modeling</option>
+                  <option>Strategic Thinking</option>
+                  <option>Data Analysis & Analytics</option>
+                  <option>Operations & Supply Chain</option>
+                  <option>Marketing & Communications</option>
+                  <option>Leadership & Collaboration</option>
+                  <option>Writing & Research</option>
+                  <option>Presentation Skills</option>
+                </select>
+                <input type="number" id="skill3Rank" min="1" max="5" value="3">
+              </div>
+            </div>
+            <div class="field-error" id="formError">Please enter a valid email, name, concentration, and 3 different skills.</div>
+            <div class="field-success" id="formSuccess">Thanks! Your info has been saved.</div>
+          </div>
+
+          <button id="addBtn" style="margin-top: 0.75rem;"><i class="ti ti-plus"></i> <span id="addBtnLabel">Submit</span></button>
+        </div>
+
+        <p style="text-align: center; font-size: 12px; color: var(--text-muted);">
+          <span id="joinCount">0</span> students have joined so far &middot;
+          <button class="link-btn" id="adminLinkBtn">Instructor dashboard</button>
+        </p>
+      </div>
+
+      <!-- Instructor dashboard: gated behind a passcode prompt -->
+      <div id="adminSection" class="hidden">
+        <div class="dash-header">
+          <h2><i class="ti ti-lock-open"></i> Instructor dashboard</h2>
+          <button class="secondary" id="lockBtn"><i class="ti ti-lock"></i> Lock</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="students"><i class="ti ti-users"></i> Roster</button>
+          <button class="tab" data-tab="skills"><i class="ti ti-chart-bar"></i> Skill Map</button>
+          <button class="tab" data-tab="teams"><i class="ti ti-layout-grid"></i> Teams</button>
+        </div>
+
+        <div id="students" class="view active">
+          <h3 style="margin-bottom: 1rem; font-size: 15px; font-weight: 700; color: var(--navy);">Cohort (<span id="studentCount">0</span> students)</h3>
+          <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Search by name or concentration...">
+            <button class="secondary" id="copyLinkBtn"><i class="ti ti-link"></i> Copy join link</button>
+          </div>
+          <div class="card-grid" id="studentList"></div>
+
+          <div class="grid-2" style="margin-bottom: 2rem;">
+            <div class="form-group">
+              <label>Team size</label>
+              <input type="number" id="teamSize" min="2" max="10" value="4">
+            </div>
+            <div class="stat">
+              <div class="stat-number" id="teamCount">0</div>
+              <div class="stat-label">Teams to create</div>
+            </div>
+          </div>
+
+          <button id="formTeamsBtn" style="width: 100%; padding: 12px;"><i class="ti ti-layout-grid"></i> Generate optimized teams</button>
+        </div>
+
+        <div id="skills" class="view">
+          <h3 style="margin-bottom: 1.5rem; font-size: 15px; font-weight: 700; color: var(--navy);">Skill distribution</h3>
+          <div id="skillChart" style="color: var(--text-muted);">Add students to see skill distribution</div>
+        </div>
+
+        <div id="teams" class="view">
+          <div class="teams-toolbar">
+            <button id="refreshTeamsBtn" class="secondary"><i class="ti ti-refresh"></i> Regenerate</button>
+            <button id="exportTeamsBtn" class="secondary"><i class="ti ti-download"></i> Export CSV</button>
+          </div>
+          <div id="teamsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="passcodeModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3><i class="ti ti-lock"></i> Instructor access</h3>
+      <div class="form-group">
+        <label>Class code</label>
+        <input type="password" id="passcodeInput" placeholder="Enter your class code">
+      </div>
+      <div class="field-error" id="passcodeError">Incorrect code.</div>
+      <div class="modal-actions">
+        <button class="secondary" id="passcodeCancelBtn">Cancel</button>
+        <button id="passcodeSubmitBtn">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const skillList = [
+      "Financial Analysis & Modeling",
+      "Strategic Thinking",
+      "Data Analysis & Analytics",
+      "Operations & Supply Chain",
+      "Marketing & Communications",
+      "Leadership & Collaboration",
+      "Writing & Research",
+      "Presentation Skills"
+    ];
+
+    const CLASS_CODE = (window.CLASS_CODE || "").trim();
+    const cloudEnabled = !!(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey);
+    let db = null;
+    let students = [];
+    let teams = [];
+    let searchTerm = "";
+    let editingExisting = false;
+
+    if (cloudEnabled) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+      db = firebase.firestore();
+    }
+
+    function studentSkills(s) {
+      return [s.skill1, s.skill2, s.skill3].filter(Boolean);
+    }
+
+    function studentScore(s) {
+      return (s.skill1 ? s.skill1Rank : 0) + (s.skill2 ? s.skill2Rank : 0) + (s.skill3 ? s.skill3Rank : 0);
+    }
+
+    function normEmail(v) {
+      return (v || "").trim().toLowerCase();
+    }
+
+    function isValidEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    // ---------------------------------------------------------------------
+    // Data layer: Firestore when configured (shared, multi-device, live sync),
+    // otherwise localStorage (single device only). Same interface either way,
+    // keyed by lowercased email so a repeat submission updates in place.
+    // ---------------------------------------------------------------------
+    function localMap() {
+      return JSON.parse(localStorage.getItem("mbaStudentsByEmail") || "{}");
+    }
+
+    function startListening() {
+      if (cloudEnabled) {
+        db.collection("students").onSnapshot(
+          snap => {
+            students = snap.docs.map(d => d.data()).filter(s => !s.removed);
+            renderAll();
+          },
+          err => {
+            document.getElementById("cloudBanner").textContent =
+              "Could not connect to the shared roster (" + err.message + "). Check your Firebase config and Firestore rules.";
+            document.getElementById("cloudBanner").classList.remove("hidden");
+          }
+        );
+      } else {
+        students = Object.values(localMap()).filter(s => !s.removed);
+        renderAll();
+      }
+    }
+
+    async function lookupStudent(email) {
+      const id = normEmail(email);
+      if (!id) return null;
+      if (cloudEnabled) {
+        const doc = await db.collection("students").doc(id).get();
+        return doc.exists && !doc.data().removed ? doc.data() : null;
+      }
+      const rec = localMap()[id];
+      return rec && !rec.removed ? rec : null;
+    }
+
+    async function saveStudent(student) {
+      const id = normEmail(student.email);
+      student.email = id;
+      student.updatedAt = new Date().toISOString();
+      student.removed = false;
+      if (cloudEnabled) {
+        student.classCode = CLASS_CODE;
+        await db.collection("students").doc(id).set(student);
+      } else {
+        const map = localMap();
+        map[id] = student;
+        localStorage.setItem("mbaStudentsByEmail", JSON.stringify(map));
+        startListening();
+      }
+    }
+
+    async function removeStudent(email) {
+      const id = normEmail(email);
+      if (cloudEnabled) {
+        const doc = await db.collection("students").doc(id).get();
+        if (!doc.exists) return;
+        const data = doc.data();
+        data.removed = true;
+        data.classCode = CLASS_CODE;
+        await db.collection("students").doc(id).set(data);
+      } else {
+        const map = localMap();
+        if (map[id]) {
+          map[id].removed = true;
+          localStorage.setItem("mbaStudentsByEmail", JSON.stringify(map));
+          startListening();
+        }
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Join form (public) -- self-serve submit, with auto-load-to-edit by email
+    // ---------------------------------------------------------------------
+    function clearForm() {
+      document.getElementById("nameInput").value = "";
+      document.getElementById("concInput").value = "";
+      document.getElementById("phoneInput").value = "";
+      document.getElementById("skill1").value = "";
+      document.getElementById("skill2").value = "";
+      document.getElementById("skill3").value = "";
+      document.getElementById("skill1Rank").value = "3";
+      document.getElementById("skill2Rank").value = "3";
+      document.getElementById("skill3Rank").value = "3";
+    }
+
+    function loadStudentIntoForm(s) {
+      document.getElementById("nameInput").value = s.name || "";
+      document.getElementById("concInput").value = s.concentration || "";
+      document.getElementById("phoneInput").value = s.phone || "";
+      document.getElementById("skill1").value = s.skill1 || "";
+      document.getElementById("skill1Rank").value = s.skill1Rank || 3;
+      document.getElementById("skill2").value = s.skill2 || "";
+      document.getElementById("skill2Rank").value = s.skill2Rank || 3;
+      document.getElementById("skill3").value = s.skill3 || "";
+      document.getElementById("skill3Rank").value = s.skill3Rank || 3;
+    }
+
+    async function onEmailBlur() {
+      const email = document.getElementById("emailInput").value;
+      if (!isValidEmail(email)) {
+        editingExisting = false;
+        updateFormMode();
+        return;
+      }
+      const existing = await lookupStudent(email);
+      if (existing) {
+        loadStudentIntoForm(existing);
+        editingExisting = true;
+      } else {
+        editingExisting = false;
+      }
+      updateFormMode();
+    }
+
+    function updateFormMode() {
+      document.getElementById("formTitle").textContent = editingExisting ? "Update your info" : "Join the cohort";
+      document.getElementById("addBtnLabel").textContent = editingExisting ? "Update my info" : "Submit";
+    }
+
+    async function addStudent() {
+      const errorEl = document.getElementById("formError");
+      const successEl = document.getElementById("formSuccess");
+      errorEl.classList.remove("show");
+      successEl.classList.remove("show");
+
+      const email = document.getElementById("emailInput").value.trim();
+      const name = document.getElementById("nameInput").value.trim();
+      const concentration = document.getElementById("concInput").value.trim();
+      const phone = document.getElementById("phoneInput").value.trim();
+      const skill1 = document.getElementById("skill1").value;
+      const skill1Rank = parseInt(document.getElementById("skill1Rank").value);
+      const skill2 = document.getElementById("skill2").value;
+      const skill2Rank = parseInt(document.getElementById("skill2Rank").value);
+      const skill3 = document.getElementById("skill3").value;
+      const skill3Rank = parseInt(document.getElementById("skill3Rank").value);
+
+      const chosenSkills = [skill1, skill2, skill3].filter(Boolean);
+      const hasDuplicates = new Set(chosenSkills).size !== chosenSkills.length;
+
+      if (!name || !concentration || !isValidEmail(email) || hasDuplicates) {
+        errorEl.classList.add("show");
+        return;
+      }
+
+      const addBtn = document.getElementById("addBtn");
+      addBtn.disabled = true;
+      try {
+        await saveStudent({
+          name, email, phone, concentration,
+          skill1, skill1Rank, skill2, skill2Rank, skill3, skill3Rank
+        });
+        successEl.classList.add("show");
+        document.getElementById("emailInput").value = "";
+        clearForm();
+        editingExisting = false;
+        updateFormMode();
+      } catch (err) {
+        errorEl.textContent = "Couldn't save: " + err.message;
+        errorEl.classList.add("show");
+      } finally {
+        addBtn.disabled = false;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Instructor dashboard: roster, skill map, teams
+    // ---------------------------------------------------------------------
+    function renderAll() {
+      document.getElementById("joinCount").textContent = students.length;
+      renderStudents();
+      renderSkillMap();
+      renderTeams();
+    }
+
+    function renderStudents() {
+      const list = document.getElementById("studentList");
+      list.innerHTML = "";
+      const term = searchTerm.trim().toLowerCase();
+      const filtered = students.filter(s =>
+        !term || s.name.toLowerCase().includes(term) || s.concentration.toLowerCase().includes(term)
+      );
+
+      if (students.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="ti ti-users" style="font-size: 28px;"></i><div style="margin-top: 8px;">No students yet. Share the join link above.</div></div>';
+      } else if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state">No students match "' + term + '".</div>';
+      } else {
+        filtered.forEach(s => {
+          const skillsText = studentSkills(s).join(", ");
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h4>${s.name}</h4>
+            <p><strong>${s.concentration}</strong></p>
+            <p style="font-size: 12px;"><i class="ti ti-mail"></i> ${s.email}</p>
+            ${s.phone ? `<p style="font-size: 12px;"><i class="ti ti-phone"></i> ${s.phone}</p>` : ""}
+            <p style="margin: 8px 0; color: var(--text-muted); font-size: 12px;">${skillsText || "No skills"}</p>
+            <div class="card-actions">
+              <button class="secondary" data-edit="${s.email}"><i class="ti ti-edit"></i> Edit</button>
+              <button class="danger" data-remove="${s.email}"><i class="ti ti-trash"></i> Remove</button>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
+      document.getElementById("studentCount").textContent = students.length;
+      updateTeamCount();
+    }
+
+    function updateTeamCount() {
+      const teamSize = parseInt(document.getElementById("teamSize").value) || 1;
+      const count = Math.ceil(students.length / teamSize);
+      document.getElementById("teamCount").textContent = count;
+    }
+
+    function renderSkillMap() {
+      const skillChart = document.getElementById("skillChart");
+      if (students.length === 0) {
+        skillChart.innerHTML = '<div style="color: var(--text-muted);">Add students to see skill distribution</div>';
+        return;
+      }
+
+      const skillCounts = {};
+      skillList.forEach(s => skillCounts[s] = { count: 0, total: 0 });
+
+      students.forEach(s => {
+        if (s.skill1) { skillCounts[s.skill1].count++; skillCounts[s.skill1].total += s.skill1Rank; }
+        if (s.skill2) { skillCounts[s.skill2].count++; skillCounts[s.skill2].total += s.skill2Rank; }
+        if (s.skill3) { skillCounts[s.skill3].count++; skillCounts[s.skill3].total += s.skill3Rank; }
+      });
+
+      let html = '';
+      Object.entries(skillCounts)
+        .filter(([_, data]) => data.count > 0)
+        .sort((a, b) => b[1].count - a[1].count)
+        .forEach(([skill, data]) => {
+          const barWidth = (data.count / students.length) * 100;
+          const avgRank = Math.round((data.total / data.count) * 10) / 10;
+          html += `
+            <div class="skill-bar">
+              <div class="skill-bar-label">
+                <span>${skill}</span>
+                <span style="color: var(--text-muted);">${data.count} students (avg ${avgRank})</span>
+              </div>
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" style="width: ${barWidth}%"></div>
+              </div>
+            </div>
+          `;
+        });
+      skillChart.innerHTML = html;
+    }
+
+    // Greedy skill-balancing optimizer: assigns strongest students first, each to
+    // whichever open team gains the most new skill coverage from them (ties broken
+    // by concentration diversity, then by lowest total team skill score so overall
+    // strength stays balanced across teams).
+    function generateTeams() {
+      if (students.length === 0) {
+        alert("No students yet");
+        return;
+      }
+
+      const teamSize = parseInt(document.getElementById("teamSize").value);
+      const numTeams = Math.ceil(students.length / teamSize);
+
+      const pool = students.map(s => ({
+        student: s,
+        skills: studentSkills(s),
+        score: studentScore(s)
+      })).sort((a, b) => b.score - a.score);
+
+      const buckets = Array.from({ length: numTeams }, () => ({
+        members: [],
+        skillSet: new Set(),
+        concSet: new Set(),
+        totalScore: 0
+      }));
+
+      pool.forEach(entry => {
+        const eligible = buckets.filter(b => b.members.length < teamSize);
+        eligible.sort((a, b) => {
+          const gainA = entry.skills.filter(sk => !a.skillSet.has(sk)).length;
+          const gainB = entry.skills.filter(sk => !b.skillSet.has(sk)).length;
+          if (gainB !== gainA) return gainB - gainA;
+
+          const concA = a.concSet.has(entry.student.concentration) ? 1 : 0;
+          const concB = b.concSet.has(entry.student.concentration) ? 1 : 0;
+          if (concA !== concB) return concA - concB;
+
+          return a.totalScore - b.totalScore;
+        });
+
+        const target = eligible[0];
+        target.members.push(entry.student);
+        entry.skills.forEach(sk => target.skillSet.add(sk));
+        target.concSet.add(entry.student.concentration);
+        target.totalScore += entry.score;
+      });
+
+      teams = buckets.map(b => b.members);
+      renderTeams();
+      switchTab("teams");
+    }
+
+    function mailtoForTeam(team, index) {
+      const emails = team.map(s => s.email).filter(Boolean).join(",");
+      const subject = `Your MBA Team Assignment - Team ${index + 1}`;
+      const lines = [`Hi team,`, ``, `You've been assigned to Team ${index + 1}. Roster:`, ``];
+      team.forEach(s => {
+        lines.push(`- ${s.name} (${s.concentration}) - ${s.email}${s.phone ? " - " + s.phone : ""}`);
+        lines.push(`  Skills: ${studentSkills(s).join(", ") || "None listed"}`);
+      });
+      lines.push(``, `Best,`);
+      const body = lines.join("\n");
+      return `mailto:${encodeURIComponent(emails)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function renderTeams() {
+      const teamsList = document.getElementById("teamsList");
+      teamsList.innerHTML = "";
+
+      if (teams.length === 0) {
+        teamsList.innerHTML = '<div class="empty-state">No teams yet. Generate teams from the Roster tab.</div>';
+        return;
+      }
+
+      teams.forEach((team, i) => {
+        const skillsCovered = new Set();
+        const concentrations = new Set();
+        let totalScore = 0;
+        team.forEach(s => {
+          studentSkills(s).forEach(sk => skillsCovered.add(sk));
+          concentrations.add(s.concentration);
+          totalScore += studentScore(s);
+        });
+        const avgScore = Math.round((totalScore / team.length) * 10) / 10;
+
+        let membersHtml = '';
+        team.forEach(s => {
+          const skills = studentSkills(s).join(", ");
+          membersHtml += `
+            <div class="member">
+              <div class="member-name">${s.name}</div>
+              <div class="member-conc">${s.concentration}</div>
+              <div class="member-skills">${skills || "No skills"}</div>
+              <div class="member-contact"><i class="ti ti-mail"></i> ${s.email}${s.phone ? ` &middot; <i class="ti ti-phone"></i> ${s.phone}` : ""}</div>
+            </div>
+          `;
+        });
+
+        const teamCard = document.createElement("div");
+        teamCard.className = "team-card";
+        teamCard.innerHTML = `
+          <div class="team-header">
+            <h3>Team ${i + 1} (${team.length} members)</h3>
+            <div class="team-badges">
+              <span class="badge">${skillsCovered.size} skills</span>
+              <span class="badge">${concentrations.size} concentrations</span>
+              <span class="badge">avg score ${avgScore}</span>
+            </div>
+          </div>
+          <div class="team-members">${membersHtml}</div>
+          <div class="team-footer">
+            <span>${skillsCovered.size} unique skills covered</span>
+            <a href="${mailtoForTeam(team, i)}"><button><i class="ti ti-mail"></i> Email this team</button></a>
+          </div>
+        `;
+        teamsList.appendChild(teamCard);
+      });
+    }
+
+    function exportTeamsCsv() {
+      if (teams.length === 0) {
+        alert("Generate teams first");
+        return;
+      }
+      let csv = "Team,Name,Email,Phone,Concentration,Skill 1,Rank,Skill 2,Rank,Skill 3,Rank\n";
+      const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      teams.forEach((team, i) => {
+        team.forEach(s => {
+          csv += [
+            i + 1, esc(s.name), esc(s.email), esc(s.phone), esc(s.concentration),
+            esc(s.skill1), s.skill1 ? s.skill1Rank : "",
+            esc(s.skill2), s.skill2 ? s.skill2Rank : "",
+            esc(s.skill3), s.skill3 ? s.skill3Rank : ""
+          ].join(",") + "\n";
+        });
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mba_teams.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.getElementById(tabName).classList.add("active");
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
+    }
+
+    // ---------------------------------------------------------------------
+    // Instructor passcode gate (deterrent only -- see firebase-config.js notes)
+    // ---------------------------------------------------------------------
+    function openAdmin() {
+      document.getElementById("adminSection").classList.remove("hidden");
+      document.getElementById("joinSection").classList.add("hidden");
+      sessionStorage.setItem("mbaAdminUnlocked", "1");
+    }
+
+    function requestAdmin() {
+      if (!CLASS_CODE || sessionStorage.getItem("mbaAdminUnlocked") === "1") {
+        openAdmin();
+        return;
+      }
+      document.getElementById("passcodeError").classList.remove("show");
+      document.getElementById("passcodeInput").value = "";
+      document.getElementById("passcodeModal").classList.remove("hidden");
+      document.getElementById("passcodeInput").focus();
+    }
+
+    document.getElementById("adminLinkBtn").addEventListener("click", requestAdmin);
+    document.getElementById("lockBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("mbaAdminUnlocked");
+      document.getElementById("adminSection").classList.add("hidden");
+      document.getElementById("joinSection").classList.remove("hidden");
+    });
+    document.getElementById("passcodeCancelBtn").addEventListener("click", () => {
+      document.getElementById("passcodeModal").classList.add("hidden");
+    });
+    document.getElementById("passcodeSubmitBtn").addEventListener("click", () => {
+      const val = document.getElementById("passcodeInput").value;
+      if (val === CLASS_CODE) {
+        document.getElementById("passcodeModal").classList.add("hidden");
+        openAdmin();
+      } else {
+        document.getElementById("passcodeError").classList.add("show");
+      }
+    });
+    document.getElementById("passcodeInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("passcodeSubmitBtn").click();
+    });
+
+    document.getElementById("copyLinkBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(window.location.href.split("#")[0]).then(() => {
+        const btn = document.getElementById("copyLinkBtn");
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="ti ti-check"></i> Copied!';
+        setTimeout(() => btn.innerHTML = original, 1500);
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+    });
+
+    document.getElementById("addBtn").addEventListener("click", addStudent);
+    document.getElementById("emailInput").addEventListener("blur", onEmailBlur);
+    document.getElementById("formTeamsBtn").addEventListener("click", generateTeams);
+    document.getElementById("refreshTeamsBtn").addEventListener("click", generateTeams);
+    document.getElementById("exportTeamsBtn").addEventListener("click", exportTeamsCsv);
+    document.getElementById("teamSize").addEventListener("change", () => {
+      localStorage.setItem("mbaTeamSize", document.getElementById("teamSize").value);
+      updateTeamCount();
+    });
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      searchTerm = e.target.value;
+      renderStudents();
+    });
+    document.getElementById("studentList").addEventListener("click", async (e) => {
+      const editEmail = e.target.closest("[data-edit]")?.getAttribute("data-edit");
+      const removeEmail = e.target.closest("[data-remove]")?.getAttribute("data-remove");
+      if (editEmail) {
+        const s = await lookupStudent(editEmail);
+        if (s) {
+          document.getElementById("emailInput").value = s.email;
+          loadStudentIntoForm(s);
+          editingExisting = true;
+          updateFormMode();
+          document.getElementById("lockBtn").click();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } else if (removeEmail) {
+        if (confirm("Remove this student from the roster?")) {
+          await removeStudent(removeEmail);
+        }
+      }
+    });
+
+    if (!cloudEnabled) {
+      const b = document.getElementById("cloudBanner");
+      b.classList.remove("hidden");
+      b.classList.add("info");
+      b.innerHTML = "<strong>Local-only mode.</strong> Firebase isn't configured yet, so submissions only stay on this device/browser and won't be shared with other visitors. See README.md to enable a shared roster.";
+    }
+
+    if (sessionStorage.getItem("mbaAdminUnlocked") === "1") {
+      openAdmin();
+    }
+
+    const savedTeamSize = localStorage.getItem("mbaTeamSize");
+    if (savedTeamSize) document.getElementById("teamSize").value = savedTeamSize;
+
+    startListening();
+  </script>
+</body>
+</html>

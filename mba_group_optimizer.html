@@ -1,0 +1,308 @@
+<div style="padding: 1rem 0;">
+  <div style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap;">
+      <button id="tabStudents" style="padding: 8px 16px; border: 0.5px solid var(--border); background: transparent; border-radius: var(--radius); cursor: pointer; font-weight: 500; color: var(--text-primary);">Students</button>
+      <button id="tabSkills" style="padding: 8px 16px; border: 0.5px solid var(--border); background: transparent; border-radius: var(--radius); cursor: pointer; color: var(--text-secondary);">Skill Map</button>
+      <button id="tabTeams" style="padding: 8px 16px; border: 0.5px solid var(--border); background: transparent; border-radius: var(--radius); cursor: pointer; color: var(--text-secondary);">Teams</button>
+    </div>
+
+    <div id="studentView">
+      <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--surface-1); border-radius: var(--radius); border: 0.5px solid var(--border);">
+        <h3 style="margin: 0 0 1rem; font-size: 16px; font-weight: 500;">Add student</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
+          <input type="text" id="nameInput" placeholder="Name" style="padding: 8px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 14px;" />
+          <input type="text" id="concInput" placeholder="Concentration" style="padding: 8px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 14px;" />
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Rate your top 3 skills (1=novice, 5=expert)</label>
+          <div id="skillInputs" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <select id="skill1" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;">
+                <option value="">Select skill</option>
+                <option>Financial Analysis & Modeling</option>
+                <option>Strategic Thinking</option>
+                <option>Data Analysis & Analytics</option>
+                <option>Operations & Supply Chain</option>
+                <option>Marketing & Communications</option>
+                <option>Leadership & Collaboration</option>
+                <option>Writing & Research</option>
+                <option>Presentation Skills</option>
+              </select>
+              <input type="number" id="skill1Rank" min="1" max="5" value="3" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;" />
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <select id="skill2" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;">
+                <option value="">Select skill</option>
+                <option>Financial Analysis & Modeling</option>
+                <option>Strategic Thinking</option>
+                <option>Data Analysis & Analytics</option>
+                <option>Operations & Supply Chain</option>
+                <option>Marketing & Communications</option>
+                <option>Leadership & Collaboration</option>
+                <option>Writing & Research</option>
+                <option>Presentation Skills</option>
+              </select>
+              <input type="number" id="skill2Rank" min="1" max="5" value="3" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;" />
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <select id="skill3" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;">
+                <option value="">Select skill</option>
+                <option>Financial Analysis & Modeling</option>
+                <option>Strategic Thinking</option>
+                <option>Data Analysis & Analytics</option>
+                <option>Operations & Supply Chain</option>
+                <option>Marketing & Communications</option>
+                <option>Leadership & Collaboration</option>
+                <option>Writing & Research</option>
+                <option>Presentation Skills</option>
+              </select>
+              <input type="number" id="skill3Rank" min="1" max="5" value="3" style="padding: 6px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px;" />
+            </div>
+          </div>
+        </div>
+
+        <button id="addBtn" style="padding: 8px 16px; background: var(--fill-accent); color: var(--on-accent); border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; font-size: 14px;"><i class="ti ti-plus" style="font-size: 16px; vertical-align: -2px; margin-right: 6px;" aria-hidden="true"></i>Add student</button>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="margin: 0 0 1rem; font-size: 16px; font-weight: 500;">Cohort</h3>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 1rem;"><span id="studentCount">0</span> students registered</div>
+        <div id="studentList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="padding: 1rem; background: var(--surface-1); border-radius: var(--radius); border: 0.5px solid var(--border);">
+          <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Team size</label>
+          <input type="number" id="teamSize" min="2" max="10" value="4" style="padding: 8px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 14px; width: 100%;" />
+        </div>
+        <div style="padding: 1rem; background: var(--surface-1); border-radius: var(--radius); border: 0.5px solid var(--border);">
+          <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Teams to create</label>
+          <div style="font-size: 20px; font-weight: 500;" id="teamCount">0</div>
+        </div>
+      </div>
+
+      <button id="formTeamsBtn" style="padding: 12px 24px; background: var(--fill-accent); color: var(--on-accent); border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; width: 100%; font-size: 15px;"><i class="ti ti-chart-bars" style="font-size: 16px; vertical-align: -2px; margin-right: 6px;" aria-hidden="true"></i>Generate teams</button>
+    </div>
+
+    <div id="skillView" style="display: none;">
+      <h3 style="margin: 0 0 1.5rem; font-size: 16px; font-weight: 500;">Skill distribution across cohort</h3>
+      <div id="skillChart" style="font-size: 13px; color: var(--text-secondary);">Load data by adding students</div>
+    </div>
+
+    <div id="teamView" style="display: none;">
+      <div style="margin-bottom: 1.5rem;">
+        <button id="refreshTeamsBtn" style="padding: 8px 16px; background: var(--surface-1); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; font-weight: 500; font-size: 14px;"><i class="ti ti-refresh" style="font-size: 16px; vertical-align: -2px; margin-right: 6px;" aria-hidden="true"></i>Regenerate</button>
+      </div>
+      <div id="teamsList" style="display: grid; gap: 16px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const skillList = [
+  "Financial Analysis & Modeling",
+  "Strategic Thinking",
+  "Data Analysis & Analytics",
+  "Operations & Supply Chain",
+  "Marketing & Communications",
+  "Leadership & Collaboration",
+  "Writing & Research",
+  "Presentation Skills"
+];
+
+let students = JSON.parse(localStorage.getItem("mbaStudents")) || [];
+let teams = [];
+
+function renderStudents() {
+  const list = document.getElementById("studentList");
+  list.innerHTML = "";
+  students.forEach((s, i) => {
+    const skillsText = [s.skill1, s.skill2, s.skill3].filter(x => x).join(", ");
+    const card = document.createElement("div");
+    card.style.cssText = "padding: 12px; background: var(--surface-1); border-radius: var(--radius); border: 0.5px solid var(--border);";
+    card.innerHTML = `
+      <div style="font-weight: 500; font-size: 14px; margin-bottom: 4px;">${s.name}</div>
+      <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">${s.concentration}</div>
+      <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">${skillsText || "No skills added"}</div>
+      <button style="padding: 4px 12px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: 12px; color: var(--text-danger);" onclick="deleteStudent(${i})"><i class="ti ti-trash" style="font-size: 13px; vertical-align: -1px; margin-right: 4px;" aria-hidden="true"></i>Remove</button>
+    `;
+    list.appendChild(card);
+  });
+  document.getElementById("studentCount").textContent = students.length;
+  document.getElementById("teamCount").textContent = Math.ceil(students.length / parseInt(document.getElementById("teamSize").value));
+}
+
+function deleteStudent(i) {
+  students.splice(i, 1);
+  localStorage.setItem("mbaStudents", JSON.stringify(students));
+  renderStudents();
+  renderSkillMap();
+}
+
+function addStudent() {
+  const name = document.getElementById("nameInput").value.trim();
+  const concentration = document.getElementById("concInput").value.trim();
+  const skill1 = document.getElementById("skill1").value;
+  const skill1Rank = parseInt(document.getElementById("skill1Rank").value);
+  const skill2 = document.getElementById("skill2").value;
+  const skill2Rank = parseInt(document.getElementById("skill2Rank").value);
+  const skill3 = document.getElementById("skill3").value;
+  const skill3Rank = parseInt(document.getElementById("skill3Rank").value);
+
+  if (!name || !concentration) {
+    alert("Enter name and concentration");
+    return;
+  }
+
+  const student = {
+    id: Date.now(),
+    name,
+    concentration,
+    skill1,
+    skill1Rank,
+    skill2,
+    skill2Rank,
+    skill3,
+    skill3Rank
+  };
+
+  students.push(student);
+  localStorage.setItem("mbaStudents", JSON.stringify(students));
+  
+  document.getElementById("nameInput").value = "";
+  document.getElementById("concInput").value = "";
+  document.getElementById("skill1").value = "";
+  document.getElementById("skill2").value = "";
+  document.getElementById("skill3").value = "";
+
+  renderStudents();
+  renderSkillMap();
+}
+
+function renderSkillMap() {
+  const skillChart = document.getElementById("skillChart");
+  if (students.length === 0) {
+    skillChart.innerHTML = "Add students to see skill distribution";
+    return;
+  }
+
+  const skillCounts = {};
+  skillList.forEach(s => skillCounts[s] = { count: 0, avgRank: 0 });
+  
+  students.forEach(s => {
+    if (s.skill1) { skillCounts[s.skill1].count++; skillCounts[s.skill1].avgRank += s.skill1Rank; }
+    if (s.skill2) { skillCounts[s.skill2].count++; skillCounts[s.skill2].avgRank += s.skill2Rank; }
+    if (s.skill3) { skillCounts[s.skill3].count++; skillCounts[s.skill3].avgRank += s.skill3Rank; }
+  });
+
+  skillList.forEach(s => {
+    if (skillCounts[s].count > 0) {
+      skillCounts[s].avgRank = Math.round((skillCounts[s].avgRank / skillCounts[s].count) * 10) / 10;
+    }
+  });
+
+  let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+  Object.entries(skillCounts).sort((a, b) => b[1].count - a[1].count).forEach(([skill, data]) => {
+    const barWidth = (data.count / students.length) * 100;
+    html += `
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
+          <span>${skill}</span>
+          <span style="color: var(--text-secondary);">${data.count} students (avg ${data.avgRank})</span>
+        </div>
+        <div style="height: 8px; background: var(--surface-1); border-radius: 4px; overflow: hidden;">
+          <div style="height: 100%; width: ${barWidth}%; background: var(--fill-accent); border-radius: 4px;"></div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  skillChart.innerHTML = html;
+}
+
+function generateTeams() {
+  if (students.length === 0) {
+    alert("Add students first");
+    return;
+  }
+
+  const teamSize = parseInt(document.getElementById("teamSize").value);
+  const sorted = [...students].sort(() => Math.random() - 0.5);
+  
+  teams = [];
+  for (let i = 0; i < sorted.length; i += teamSize) {
+    teams.push(sorted.slice(i, i + teamSize));
+  }
+
+  renderTeams();
+  switchTab("teams");
+}
+
+function renderTeams() {
+  const teamsList = document.getElementById("teamsList");
+  teamsList.innerHTML = "";
+  
+  teams.forEach((team, i) => {
+    const skillsCovered = new Set();
+    team.forEach(s => {
+      if (s.skill1) skillsCovered.add(s.skill1);
+      if (s.skill2) skillsCovered.add(s.skill2);
+      if (s.skill3) skillsCovered.add(s.skill3);
+    });
+
+    const teamCard = document.createElement("div");
+    teamCard.style.cssText = "padding: 1rem; background: var(--surface-1); border-radius: var(--radius); border: 0.5px solid var(--border);";
+    
+    let html = `<h4 style="margin: 0 0 1rem; font-size: 15px; font-weight: 500;">Team ${i + 1} (${team.length} members)</h4>`;
+    html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">';
+    
+    team.forEach(s => {
+      const skills = [s.skill1, s.skill2, s.skill3].filter(x => x).join(", ");
+      html += `
+        <div style="padding: 8px; background: var(--surface-2); border-radius: var(--radius);">
+          <div style="font-weight: 500; font-size: 13px; margin-bottom: 2px;">${s.name}</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${s.concentration}</div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.3;">${skills || "No skills"}</div>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    html += `<div style="font-size: 12px; color: var(--text-secondary); padding-top: 8px; border-top: 0.5px solid var(--border);">Skills covered: ${skillsCovered.size} unique</div>`;
+    
+    teamCard.innerHTML = html;
+    teamsList.appendChild(teamCard);
+  });
+}
+
+function switchTab(tab) {
+  document.getElementById("studentView").style.display = tab === "students" ? "block" : "none";
+  document.getElementById("skillView").style.display = tab === "skills" ? "block" : "none";
+  document.getElementById("teamView").style.display = tab === "teams" ? "block" : "none";
+  
+  document.getElementById("tabStudents").style.borderBottom = tab === "students" ? "2px solid var(--fill-accent)" : "0.5px solid var(--border)";
+  document.getElementById("tabStudents").style.color = tab === "students" ? "var(--text-primary)" : "var(--text-secondary)";
+  document.getElementById("tabSkills").style.borderBottom = tab === "skills" ? "2px solid var(--fill-accent)" : "0.5px solid var(--border)";
+  document.getElementById("tabSkills").style.color = tab === "skills" ? "var(--text-primary)" : "var(--text-secondary)";
+  document.getElementById("tabTeams").style.borderBottom = tab === "teams" ? "2px solid var(--fill-accent)" : "0.5px solid var(--border)";
+  document.getElementById("tabTeams").style.color = tab === "teams" ? "var(--text-primary)" : "var(--text-secondary)";
+
+  if (tab === "skills") renderSkillMap();
+}
+
+document.getElementById("addBtn").addEventListener("click", addStudent);
+document.getElementById("formTeamsBtn").addEventListener("click", generateTeams);
+document.getElementById("refreshTeamsBtn").addEventListener("click", generateTeams);
+document.getElementById("tabStudents").addEventListener("click", () => switchTab("students"));
+document.getElementById("tabSkills").addEventListener("click", () => switchTab("skills"));
+document.getElementById("tabTeams").addEventListener("click", () => switchTab("teams"));
+document.getElementById("teamSize").addEventListener("change", () => {
+  document.getElementById("teamCount").textContent = Math.ceil(students.length / parseInt(document.getElementById("teamSize").value));
+});
+
+renderStudents();
+renderSkillMap();
+</script>
