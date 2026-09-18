@@ -107,13 +107,31 @@
 
     .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
     .dash-header h2 { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .dash-header .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
-    .modal { background: var(--white); padding: 1.5rem; border-radius: 10px; max-width: 360px; width: 100%; }
+    .modal { background: var(--white); padding: 1.5rem; border-radius: 10px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; }
     .modal h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
     .modal-actions { display: flex; gap: 10px; margin-top: 1rem; }
     .modal-actions button { flex: 1; }
     .hidden { display: none !important; }
+
+    .session-card { padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .session-card h4 { color: var(--navy); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .session-card .meta { font-size: 12px; color: var(--text-muted); }
+    .session-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .session-card .actions button { font-size: 12px; padding: 6px 10px; }
+
+    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--gold); color: var(--navy); font-size: 12px; font-weight: 600; padding: 5px 6px 5px 10px; border-radius: 12px; }
+    .chip button { background: none; border: none; color: var(--navy); padding: 0; font-size: 14px; line-height: 1; cursor: pointer; font-weight: 700; }
+    .chip button:hover { background: none; color: var(--danger); }
+    .add-chip-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+    .add-chip-row input { flex: 1; }
+    .add-chip-row button { flex-shrink: 0; padding: 8px 14px; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--navy); background: none; border: none; cursor: pointer; font-weight: 600; padding: 0; margin-bottom: 1rem; }
+    .back-link:hover { background: none; color: var(--navy-light); }
 
     @media (max-width: 640px) {
       body { padding: 0; }
@@ -121,6 +139,7 @@
       .masthead { padding: 1.25rem 1.25rem; }
       .body-pad { padding: 1.25rem; }
       .grid-2, .grid-3, .team-members { grid-template-columns: 1fr; }
+      .session-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -137,10 +156,12 @@
     <div class="body-pad">
       <div id="cloudBanner" class="banner hidden"></div>
 
-      <!-- Public join form: visible to everyone, students self-submit or update here -->
-      <div id="joinSection">
+      <!-- ============ Join view: shown when the URL has ?session=<id> ============ -->
+      <div id="joinView" class="hidden">
+        <button class="back-link hidden" id="backToRosterBtn"><i class="ti ti-arrow-left"></i> Back to roster (without saving)</button>
         <div class="form-section">
-          <h3 id="formTitle" style="margin-bottom: 0.35rem; font-size: 16px; font-weight: 700; color: var(--navy);">Join the cohort</h3>
+          <h3 id="formTitle" style="margin-bottom: 0.1rem; font-size: 16px; font-weight: 700; color: var(--navy);">Join the cohort</h3>
+          <p id="sessionTitleLine" style="font-size: 13px; color: var(--gold-dark); font-weight: 600; margin-bottom: 1rem;"></p>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem;">Enter your email first -- if you've already submitted, your info will load automatically so you can update it.</p>
 
           <div class="grid-2" style="margin-bottom: 1rem;">
@@ -169,45 +190,15 @@
             <label>Top 3 skills (1=novice, 5=expert)</label>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div class="grid-3">
-                <select id="skill1">
-                  <option value="">Select skill</option>
-                  <option>Financial Analysis & Modeling</option>
-                  <option>Strategic Thinking</option>
-                  <option>Data Analysis & Analytics</option>
-                  <option>Operations & Supply Chain</option>
-                  <option>Marketing & Communications</option>
-                  <option>Leadership & Collaboration</option>
-                  <option>Writing & Research</option>
-                  <option>Presentation Skills</option>
-                </select>
+                <select id="skill1"><option value="">Select skill</option></select>
                 <input type="number" id="skill1Rank" min="1" max="5" value="3">
               </div>
               <div class="grid-3">
-                <select id="skill2">
-                  <option value="">Select skill</option>
-                  <option>Financial Analysis & Modeling</option>
-                  <option>Strategic Thinking</option>
-                  <option>Data Analysis & Analytics</option>
-                  <option>Operations & Supply Chain</option>
-                  <option>Marketing & Communications</option>
-                  <option>Leadership & Collaboration</option>
-                  <option>Writing & Research</option>
-                  <option>Presentation Skills</option>
-                </select>
+                <select id="skill2"><option value="">Select skill</option></select>
                 <input type="number" id="skill2Rank" min="1" max="5" value="3">
               </div>
               <div class="grid-3">
-                <select id="skill3">
-                  <option value="">Select skill</option>
-                  <option>Financial Analysis & Modeling</option>
-                  <option>Strategic Thinking</option>
-                  <option>Data Analysis & Analytics</option>
-                  <option>Operations & Supply Chain</option>
-                  <option>Marketing & Communications</option>
-                  <option>Leadership & Collaboration</option>
-                  <option>Writing & Research</option>
-                  <option>Presentation Skills</option>
-                </select>
+                <select id="skill3"><option value="">Select skill</option></select>
                 <input type="number" id="skill3Rank" min="1" max="5" value="3">
               </div>
             </div>
@@ -219,16 +210,44 @@
         </div>
 
         <p style="text-align: center; font-size: 12px; color: var(--text-muted);">
-          <span id="joinCount">0</span> students have joined so far &middot;
-          <button class="link-btn" id="adminLinkBtn">Instructor dashboard</button>
+          <span id="joinCount">0</span> students have joined so far
         </p>
       </div>
 
-      <!-- Instructor dashboard: gated behind a passcode prompt -->
-      <div id="adminSection" class="hidden">
+      <div id="sessionNotFoundView" class="hidden empty-state">
+        <i class="ti ti-alert-triangle" style="font-size: 28px;"></i>
+        <div style="margin-top: 8px;">This session link isn't valid or has been closed. Check the link with your instructor.</div>
+      </div>
+
+      <!-- ============ Admin entry: shown when there's no ?session= in the URL ============ -->
+      <div id="adminEntryView" class="hidden" style="text-align: center; padding: 2rem 1rem;">
+        <i class="ti ti-lock" style="font-size: 32px; color: var(--navy);"></i>
+        <p style="margin: 1rem 0; color: var(--text-muted); font-size: 14px;">This is the instructor portal. Students should use the session link you share with them.</p>
+        <button id="adminEntryBtn">Sign in as instructor</button>
+      </div>
+
+      <!-- ============ Admin portal: session list ============ -->
+      <div id="sessionsListView" class="hidden">
         <div class="dash-header">
-          <h2><i class="ti ti-lock-open"></i> Instructor dashboard</h2>
+          <div>
+            <h2><i class="ti ti-lock-open"></i> Instructor portal</h2>
+            <div class="sub">Create a session for each class project, then share its join link with students.</div>
+          </div>
           <button class="secondary" id="lockBtn"><i class="ti ti-lock"></i> Lock</button>
+        </div>
+        <button id="newSessionBtn" style="margin-bottom: 1.5rem;"><i class="ti ti-plus"></i> New session</button>
+        <div id="sessionsList"></div>
+      </div>
+
+      <!-- ============ Admin portal: single session dashboard ============ -->
+      <div id="sessionDashboardView" class="hidden">
+        <button class="back-link" id="backToSessionsBtn"><i class="ti ti-arrow-left"></i> All sessions</button>
+        <div class="dash-header">
+          <div>
+            <h2 id="dashSessionTitle">Session</h2>
+            <div class="sub" id="dashSessionMeta"></div>
+          </div>
+          <button class="secondary" id="lockBtn2"><i class="ti ti-lock"></i> Lock</button>
         </div>
 
         <div class="tabs">
@@ -275,6 +294,7 @@
     </div>
   </div>
 
+  <!-- Passcode modal -->
   <div id="passcodeModal" class="modal-overlay hidden">
     <div class="modal">
       <h3><i class="ti ti-lock"></i> Instructor access</h3>
@@ -290,8 +310,33 @@
     </div>
   </div>
 
+  <!-- New / edit session modal -->
+  <div id="sessionModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 id="sessionModalTitle"><i class="ti ti-folder-plus"></i> New session</h3>
+      <div class="form-group">
+        <label>Session title</label>
+        <input type="text" id="sessionTitleInput" placeholder="e.g. Fall 2026 Consulting Practicum">
+      </div>
+      <div class="form-group">
+        <label>Relevant skills for this session</label>
+        <div class="chip-list" id="skillChipList"></div>
+        <div class="add-chip-row">
+          <input type="text" id="newSkillInput" placeholder="Add a skill...">
+          <button type="button" class="secondary" id="addSkillChipBtn">Add</button>
+        </div>
+        <button type="button" class="link-btn" id="resetSkillsBtn">Reset to default skill list</button>
+      </div>
+      <div class="field-error" id="sessionModalError">Please enter a title and at least one skill.</div>
+      <div class="modal-actions">
+        <button class="secondary" id="sessionModalCancelBtn">Cancel</button>
+        <button id="sessionModalSaveBtn">Save session</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const skillList = [
+    const DEFAULT_SKILLS = [
       "Financial Analysis & Modeling",
       "Strategic Thinking",
       "Data Analysis & Analytics",
@@ -305,22 +350,25 @@
     const CLASS_CODE = (window.CLASS_CODE || "").trim();
     const cloudEnabled = !!(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey);
     let db = null;
-    let students = [];
-    let teams = [];
-    let searchTerm = "";
-    let editingExisting = false;
-
     if (cloudEnabled) {
       firebase.initializeApp(window.FIREBASE_CONFIG);
       db = firebase.firestore();
     }
 
-    function studentSkills(s) {
-      return [s.skill1, s.skill2, s.skill3].filter(Boolean);
-    }
+    const urlSessionId = new URLSearchParams(window.location.search).get("session");
 
-    function studentScore(s) {
-      return (s.skill1 ? s.skill1Rank : 0) + (s.skill2 ? s.skill2Rank : 0) + (s.skill3 ? s.skill3Rank : 0);
+    let students = [];
+    let teams = [];
+    let searchTerm = "";
+    let editingExisting = false;
+    let currentSession = null;   // {id, title, skills, ...} -- the session being viewed/joined
+    let skillsDraft = [];        // working copy of skills while the session modal is open
+    let editingSessionId = null; // set when the session modal is editing (not creating)
+    let adminEditReturnSessionId = null; // set when an instructor is editing a student on their behalf
+    let unsubStudents = null;
+
+    function genId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     }
 
     function normEmail(v) {
@@ -331,78 +379,202 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     }
 
-    // ---------------------------------------------------------------------
-    // Data layer: Firestore when configured (shared, multi-device, live sync),
-    // otherwise localStorage (single device only). Same interface either way,
-    // keyed by lowercased email so a repeat submission updates in place.
-    // ---------------------------------------------------------------------
-    function localMap() {
-      return JSON.parse(localStorage.getItem("mbaStudentsByEmail") || "{}");
+    function studentSkills(s) {
+      return [s.skill1, s.skill2, s.skill3].filter(Boolean);
     }
 
-    function startListening() {
+    function studentScore(s) {
+      return (s.skill1 ? s.skill1Rank : 0) + (s.skill2 ? s.skill2Rank : 0) + (s.skill3 ? s.skill3Rank : 0);
+    }
+
+    function showCloudError(err) {
+      const b = document.getElementById("cloudBanner");
+      b.textContent = "Could not connect to the shared roster (" + err.message + "). Check your Firebase config and Firestore rules.";
+      b.classList.remove("hidden", "info");
+    }
+
+    // ---------------------------------------------------------------------
+    // Data layer -- Firestore when configured (shared, multi-device, live
+    // sync), otherwise localStorage (single device only). Sessions are the
+    // top-level unit; each has its own student roster and skill list.
+    // ---------------------------------------------------------------------
+    function localSessions() {
+      return JSON.parse(localStorage.getItem("mbaSessions") || "{}");
+    }
+    function saveLocalSessions(map) {
+      localStorage.setItem("mbaSessions", JSON.stringify(map));
+    }
+    function localStudentsMap(sessionId) {
+      return JSON.parse(localStorage.getItem("mbaStudents::" + sessionId) || "{}");
+    }
+    function saveLocalStudentsMap(sessionId, map) {
+      localStorage.setItem("mbaStudents::" + sessionId, JSON.stringify(map));
+    }
+
+    async function getSession(sessionId) {
       if (cloudEnabled) {
-        db.collection("students").onSnapshot(
+        const doc = await db.collection("sessions").doc(sessionId).get();
+        return doc.exists ? { id: doc.id, ...doc.data() } : null;
+      }
+      const map = localSessions();
+      return map[sessionId] ? { id: sessionId, ...map[sessionId] } : null;
+    }
+
+    async function createOrUpdateSession(sessionId, title, skills) {
+      const data = {
+        title,
+        skills,
+        createdAt: new Date().toISOString(),
+        archived: false,
+        classCode: CLASS_CODE
+      };
+      if (cloudEnabled) {
+        const existing = editingSessionId ? (await db.collection("sessions").doc(sessionId).get()).data() : null;
+        if (existing && existing.createdAt) data.createdAt = existing.createdAt;
+        await db.collection("sessions").doc(sessionId).set(data);
+      } else {
+        const map = localSessions();
+        if (map[sessionId] && map[sessionId].createdAt) data.createdAt = map[sessionId].createdAt;
+        map[sessionId] = data;
+        saveLocalSessions(map);
+      }
+    }
+
+    async function archiveSession(sessionId) {
+      if (cloudEnabled) {
+        const doc = await db.collection("sessions").doc(sessionId).get();
+        if (!doc.exists) return;
+        const data = doc.data();
+        data.archived = true;
+        data.classCode = CLASS_CODE;
+        await db.collection("sessions").doc(sessionId).set(data);
+      } else {
+        const map = localSessions();
+        if (map[sessionId]) {
+          map[sessionId].archived = true;
+          saveLocalSessions(map);
+        }
+      }
+    }
+
+    async function listSessions() {
+      if (cloudEnabled) {
+        const snap = await db.collection("sessions").get();
+        return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => !s.archived);
+      }
+      return Object.entries(localSessions()).filter(([, s]) => !s.archived).map(([id, s]) => ({ id, ...s }));
+    }
+
+    async function countStudents(sessionId) {
+      if (cloudEnabled) {
+        const snap = await db.collection("sessions").doc(sessionId).collection("students").get();
+        return snap.docs.filter(d => !d.data().removed).length;
+      }
+      return Object.values(localStudentsMap(sessionId)).filter(s => !s.removed).length;
+    }
+
+    function listenStudents(sessionId) {
+      if (unsubStudents) { unsubStudents(); unsubStudents = null; }
+      if (cloudEnabled) {
+        unsubStudents = db.collection("sessions").doc(sessionId).collection("students").onSnapshot(
           snap => {
             students = snap.docs.map(d => d.data()).filter(s => !s.removed);
             renderAll();
           },
-          err => {
-            document.getElementById("cloudBanner").textContent =
-              "Could not connect to the shared roster (" + err.message + "). Check your Firebase config and Firestore rules.";
-            document.getElementById("cloudBanner").classList.remove("hidden");
-          }
+          showCloudError
         );
       } else {
-        students = Object.values(localMap()).filter(s => !s.removed);
+        students = Object.values(localStudentsMap(sessionId)).filter(s => !s.removed);
         renderAll();
       }
     }
 
-    async function lookupStudent(email) {
+    async function lookupStudent(sessionId, email) {
       const id = normEmail(email);
       if (!id) return null;
       if (cloudEnabled) {
-        const doc = await db.collection("students").doc(id).get();
+        const doc = await db.collection("sessions").doc(sessionId).collection("students").doc(id).get();
         return doc.exists && !doc.data().removed ? doc.data() : null;
       }
-      const rec = localMap()[id];
+      const rec = localStudentsMap(sessionId)[id];
       return rec && !rec.removed ? rec : null;
     }
 
-    async function saveStudent(student) {
+    async function saveStudent(sessionId, student) {
       const id = normEmail(student.email);
       student.email = id;
       student.updatedAt = new Date().toISOString();
       student.removed = false;
       if (cloudEnabled) {
-        student.classCode = CLASS_CODE;
-        await db.collection("students").doc(id).set(student);
+        await db.collection("sessions").doc(sessionId).collection("students").doc(id).set(student);
       } else {
-        const map = localMap();
+        const map = localStudentsMap(sessionId);
         map[id] = student;
-        localStorage.setItem("mbaStudentsByEmail", JSON.stringify(map));
-        startListening();
+        saveLocalStudentsMap(sessionId, map);
+        listenStudents(sessionId);
       }
     }
 
-    async function removeStudent(email) {
+    async function removeStudent(sessionId, email) {
       const id = normEmail(email);
       if (cloudEnabled) {
-        const doc = await db.collection("students").doc(id).get();
+        const doc = await db.collection("sessions").doc(sessionId).collection("students").doc(id).get();
         if (!doc.exists) return;
         const data = doc.data();
         data.removed = true;
-        data.classCode = CLASS_CODE;
-        await db.collection("students").doc(id).set(data);
+        await db.collection("sessions").doc(sessionId).collection("students").doc(id).set(data);
       } else {
-        const map = localMap();
+        const map = localStudentsMap(sessionId);
         if (map[id]) {
           map[id].removed = true;
-          localStorage.setItem("mbaStudentsByEmail", JSON.stringify(map));
-          startListening();
+          saveLocalStudentsMap(sessionId, map);
+          listenStudents(sessionId);
         }
       }
+    }
+
+    // ---------------------------------------------------------------------
+    // View routing
+    // ---------------------------------------------------------------------
+    function hideAllViews() {
+      ["joinView", "sessionNotFoundView", "adminEntryView", "sessionsListView", "sessionDashboardView"]
+        .forEach(id => document.getElementById(id).classList.add("hidden"));
+    }
+
+    async function boot() {
+      if (urlSessionId) {
+        const session = await getSession(urlSessionId);
+        if (session && !session.archived) {
+          currentSession = session;
+          showJoinView(session);
+        } else {
+          hideAllViews();
+          document.getElementById("sessionNotFoundView").classList.remove("hidden");
+        }
+      } else {
+        hideAllViews();
+        if (sessionStorage.getItem("mbaAdminUnlocked") === "1") {
+          await showSessionsList();
+        } else {
+          document.getElementById("adminEntryView").classList.remove("hidden");
+        }
+      }
+    }
+
+    function populateSkillSelect(select, skills) {
+      const current = select.value;
+      select.innerHTML = '<option value="">Select skill</option>' +
+        skills.map(s => `<option>${s}</option>`).join("");
+      if (skills.includes(current)) select.value = current;
+    }
+
+    function showJoinView(session) {
+      hideAllViews();
+      document.getElementById("joinView").classList.remove("hidden");
+      document.getElementById("backToRosterBtn").classList.add("hidden");
+      document.getElementById("sessionTitleLine").textContent = "Session: " + session.title;
+      [1, 2, 3].forEach(n => populateSkillSelect(document.getElementById("skill" + n), session.skills));
+      listenStudents(session.id);
     }
 
     // ---------------------------------------------------------------------
@@ -434,12 +606,12 @@
 
     async function onEmailBlur() {
       const email = document.getElementById("emailInput").value;
-      if (!isValidEmail(email)) {
+      if (!isValidEmail(email) || !currentSession) {
         editingExisting = false;
         updateFormMode();
         return;
       }
-      const existing = await lookupStudent(email);
+      const existing = await lookupStudent(currentSession.id, email);
       if (existing) {
         loadStudentIntoForm(existing);
         editingExisting = true;
@@ -474,7 +646,7 @@
       const chosenSkills = [skill1, skill2, skill3].filter(Boolean);
       const hasDuplicates = new Set(chosenSkills).size !== chosenSkills.length;
 
-      if (!name || !concentration || !isValidEmail(email) || hasDuplicates) {
+      if (!name || !concentration || !isValidEmail(email) || hasDuplicates || !currentSession) {
         errorEl.classList.add("show");
         return;
       }
@@ -482,7 +654,7 @@
       const addBtn = document.getElementById("addBtn");
       addBtn.disabled = true;
       try {
-        await saveStudent({
+        await saveStudent(currentSession.id, {
           name, email, phone, concentration,
           skill1, skill1Rank, skill2, skill2Rank, skill3, skill3Rank
         });
@@ -491,6 +663,11 @@
         clearForm();
         editingExisting = false;
         updateFormMode();
+        if (adminEditReturnSessionId) {
+          const returnTo = adminEditReturnSessionId;
+          adminEditReturnSessionId = null;
+          setTimeout(() => openSessionDashboard(returnTo), 600);
+        }
       } catch (err) {
         errorEl.textContent = "Couldn't save: " + err.message;
         errorEl.classList.add("show");
@@ -500,8 +677,120 @@
     }
 
     // ---------------------------------------------------------------------
-    // Instructor dashboard: roster, skill map, teams
+    // Instructor portal: session list
     // ---------------------------------------------------------------------
+    async function showSessionsList() {
+      hideAllViews();
+      document.getElementById("sessionsListView").classList.remove("hidden");
+      await renderSessionsList();
+    }
+
+    async function renderSessionsList() {
+      const container = document.getElementById("sessionsList");
+      const sessions = await listSessions();
+      if (sessions.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="ti ti-folder" style="font-size: 28px;"></i><div style="margin-top: 8px;">No sessions yet. Create one for your first class project.</div></div>';
+        return;
+      }
+      sessions.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+      const counts = await Promise.all(sessions.map(s => countStudents(s.id)));
+      container.innerHTML = sessions.map((s, i) => `
+        <div class="session-card">
+          <div>
+            <h4>${s.title}</h4>
+            <div class="meta">${counts[i]} student${counts[i] === 1 ? "" : "s"} &middot; ${s.skills.length} skills &middot; created ${new Date(s.createdAt).toLocaleDateString()}</div>
+          </div>
+          <div class="actions">
+            <button data-open="${s.id}"><i class="ti ti-folder-open"></i> Open</button>
+            <button class="secondary" data-copy="${s.id}"><i class="ti ti-link"></i> Copy link</button>
+            <button class="secondary" data-edit-session="${s.id}"><i class="ti ti-edit"></i> Edit</button>
+            <button class="danger" data-archive="${s.id}"><i class="ti ti-archive"></i> Archive</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function joinLinkFor(sessionId) {
+      const url = new URL(window.location.href);
+      url.search = "?session=" + sessionId;
+      url.hash = "";
+      return url.toString();
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="ti ti-check"></i> Copied!';
+        setTimeout(() => btn.innerHTML = original, 1500);
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // Session create/edit modal
+    // ---------------------------------------------------------------------
+    function renderSkillChips() {
+      const list = document.getElementById("skillChipList");
+      list.innerHTML = skillsDraft.map(s => `
+        <span class="chip">${s} <button type="button" data-remove-skill="${s}">&times;</button></span>
+      `).join("") || '<span style="font-size: 12px; color: var(--text-muted);">No skills added yet.</span>';
+    }
+
+    function openSessionModal(existing) {
+      editingSessionId = existing ? existing.id : null;
+      document.getElementById("sessionModalTitle").innerHTML = existing
+        ? '<i class="ti ti-edit"></i> Edit session'
+        : '<i class="ti ti-folder-plus"></i> New session';
+      document.getElementById("sessionTitleInput").value = existing ? existing.title : "";
+      skillsDraft = existing ? [...existing.skills] : [...DEFAULT_SKILLS];
+      document.getElementById("sessionModalError").classList.remove("show");
+      document.getElementById("newSkillInput").value = "";
+      renderSkillChips();
+      document.getElementById("sessionModal").classList.remove("hidden");
+    }
+
+    function closeSessionModal() {
+      document.getElementById("sessionModal").classList.add("hidden");
+    }
+
+    async function saveSessionModal() {
+      const title = document.getElementById("sessionTitleInput").value.trim();
+      const errorEl = document.getElementById("sessionModalError");
+      if (!title || skillsDraft.length === 0) {
+        errorEl.classList.add("show");
+        return;
+      }
+      errorEl.classList.remove("show");
+      const id = editingSessionId || genId();
+      const btn = document.getElementById("sessionModalSaveBtn");
+      btn.disabled = true;
+      try {
+        await createOrUpdateSession(id, title, skillsDraft);
+        closeSessionModal();
+        await renderSessionsList();
+      } catch (err) {
+        errorEl.textContent = "Couldn't save: " + err.message;
+        errorEl.classList.add("show");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Session dashboard: roster, skill map, teams (scoped to currentSession)
+    // ---------------------------------------------------------------------
+    async function openSessionDashboard(sessionId) {
+      const session = await getSession(sessionId);
+      if (!session) return;
+      currentSession = session;
+      hideAllViews();
+      document.getElementById("sessionDashboardView").classList.remove("hidden");
+      document.getElementById("dashSessionTitle").textContent = session.title;
+      document.getElementById("dashSessionMeta").textContent = session.skills.length + " tracked skills";
+      switchTab("students");
+      teams = [];
+      listenStudents(session.id);
+    }
+
     function renderAll() {
       document.getElementById("joinCount").textContent = students.length;
       renderStudents();
@@ -552,18 +841,19 @@
 
     function renderSkillMap() {
       const skillChart = document.getElementById("skillChart");
+      if (!currentSession) return;
       if (students.length === 0) {
         skillChart.innerHTML = '<div style="color: var(--text-muted);">Add students to see skill distribution</div>';
         return;
       }
 
       const skillCounts = {};
-      skillList.forEach(s => skillCounts[s] = { count: 0, total: 0 });
+      currentSession.skills.forEach(s => skillCounts[s] = { count: 0, total: 0 });
 
       students.forEach(s => {
-        if (s.skill1) { skillCounts[s.skill1].count++; skillCounts[s.skill1].total += s.skill1Rank; }
-        if (s.skill2) { skillCounts[s.skill2].count++; skillCounts[s.skill2].total += s.skill2Rank; }
-        if (s.skill3) { skillCounts[s.skill3].count++; skillCounts[s.skill3].total += s.skill3Rank; }
+        if (s.skill1 && skillCounts[s.skill1]) { skillCounts[s.skill1].count++; skillCounts[s.skill1].total += s.skill1Rank; }
+        if (s.skill2 && skillCounts[s.skill2]) { skillCounts[s.skill2].count++; skillCounts[s.skill2].total += s.skill2Rank; }
+        if (s.skill3 && skillCounts[s.skill3]) { skillCounts[s.skill3].count++; skillCounts[s.skill3].total += s.skill3Rank; }
       });
 
       let html = '';
@@ -585,7 +875,7 @@
             </div>
           `;
         });
-      skillChart.innerHTML = html;
+      skillChart.innerHTML = html || '<div style="color: var(--text-muted);">No skills selected yet</div>';
     }
 
     // Greedy skill-balancing optimizer: assigns strongest students first, each to
@@ -655,6 +945,7 @@
 
     function renderTeams() {
       const teamsList = document.getElementById("teamsList");
+      if (!teamsList) return;
       teamsList.innerHTML = "";
 
       if (teams.length === 0) {
@@ -728,7 +1019,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "mba_teams.csv";
+      a.download = (currentSession ? currentSession.title.replace(/[^a-z0-9]+/gi, "_") : "mba") + "_teams.csv";
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -737,35 +1028,44 @@
       document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
       document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
       document.getElementById(tabName).classList.add("active");
-      document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
+      document.querySelectorAll(`[data-tab="${tabName}"]`).forEach(t => t.classList.add("active"));
     }
 
     // ---------------------------------------------------------------------
     // Instructor passcode gate (deterrent only -- see firebase-config.js notes)
     // ---------------------------------------------------------------------
-    function openAdmin() {
-      document.getElementById("adminSection").classList.remove("hidden");
-      document.getElementById("joinSection").classList.add("hidden");
-      sessionStorage.setItem("mbaAdminUnlocked", "1");
-    }
-
-    function requestAdmin() {
+    function requestAdmin(onSuccess) {
       if (!CLASS_CODE || sessionStorage.getItem("mbaAdminUnlocked") === "1") {
-        openAdmin();
+        sessionStorage.setItem("mbaAdminUnlocked", "1");
+        onSuccess();
         return;
       }
       document.getElementById("passcodeError").classList.remove("show");
       document.getElementById("passcodeInput").value = "";
       document.getElementById("passcodeModal").classList.remove("hidden");
       document.getElementById("passcodeInput").focus();
+      window._pendingAdminSuccess = onSuccess;
     }
 
-    document.getElementById("adminLinkBtn").addEventListener("click", requestAdmin);
+    document.getElementById("adminEntryBtn").addEventListener("click", () => requestAdmin(showSessionsList));
     document.getElementById("lockBtn").addEventListener("click", () => {
       sessionStorage.removeItem("mbaAdminUnlocked");
-      document.getElementById("adminSection").classList.add("hidden");
-      document.getElementById("joinSection").classList.remove("hidden");
+      boot();
     });
+    document.getElementById("lockBtn2").addEventListener("click", () => {
+      sessionStorage.removeItem("mbaAdminUnlocked");
+      boot();
+    });
+    document.getElementById("backToSessionsBtn").addEventListener("click", showSessionsList);
+    document.getElementById("backToRosterBtn").addEventListener("click", () => {
+      const returnTo = adminEditReturnSessionId || (currentSession && currentSession.id);
+      adminEditReturnSessionId = null;
+      editingExisting = false;
+      clearForm();
+      document.getElementById("emailInput").value = "";
+      if (returnTo) openSessionDashboard(returnTo);
+    });
+
     document.getElementById("passcodeCancelBtn").addEventListener("click", () => {
       document.getElementById("passcodeModal").classList.add("hidden");
     });
@@ -773,7 +1073,8 @@
       const val = document.getElementById("passcodeInput").value;
       if (val === CLASS_CODE) {
         document.getElementById("passcodeModal").classList.add("hidden");
-        openAdmin();
+        sessionStorage.setItem("mbaAdminUnlocked", "1");
+        if (window._pendingAdminSuccess) window._pendingAdminSuccess();
       } else {
         document.getElementById("passcodeError").classList.add("show");
       }
@@ -782,13 +1083,56 @@
       if (e.key === "Enter") document.getElementById("passcodeSubmitBtn").click();
     });
 
-    document.getElementById("copyLinkBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(window.location.href.split("#")[0]).then(() => {
-        const btn = document.getElementById("copyLinkBtn");
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="ti ti-check"></i> Copied!';
-        setTimeout(() => btn.innerHTML = original, 1500);
-      });
+    document.getElementById("newSessionBtn").addEventListener("click", () => openSessionModal(null));
+    document.getElementById("sessionModalCancelBtn").addEventListener("click", closeSessionModal);
+    document.getElementById("sessionModalSaveBtn").addEventListener("click", saveSessionModal);
+    document.getElementById("resetSkillsBtn").addEventListener("click", () => {
+      skillsDraft = [...DEFAULT_SKILLS];
+      renderSkillChips();
+    });
+    document.getElementById("addSkillChipBtn").addEventListener("click", () => {
+      const input = document.getElementById("newSkillInput");
+      const val = input.value.trim();
+      if (val && !skillsDraft.includes(val)) {
+        skillsDraft.push(val);
+        renderSkillChips();
+      }
+      input.value = "";
+      input.focus();
+    });
+    document.getElementById("newSkillInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("addSkillChipBtn").click(); }
+    });
+    document.getElementById("skillChipList").addEventListener("click", (e) => {
+      const skill = e.target.closest("[data-remove-skill]")?.getAttribute("data-remove-skill");
+      if (skill) {
+        skillsDraft = skillsDraft.filter(s => s !== skill);
+        renderSkillChips();
+      }
+    });
+
+    document.getElementById("sessionsList").addEventListener("click", async (e) => {
+      const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+      const copyId = e.target.closest("[data-copy]")?.getAttribute("data-copy");
+      const editId = e.target.closest("[data-edit-session]")?.getAttribute("data-edit-session");
+      const archiveId = e.target.closest("[data-archive]")?.getAttribute("data-archive");
+      if (openId) {
+        await openSessionDashboard(openId);
+      } else if (copyId) {
+        copyToClipboard(joinLinkFor(copyId), e.target.closest("button"));
+      } else if (editId) {
+        const s = await getSession(editId);
+        if (s) openSessionModal(s);
+      } else if (archiveId) {
+        if (confirm("Archive this session? Its join link will stop working, but roster data is kept.")) {
+          await archiveSession(archiveId);
+          await renderSessionsList();
+        }
+      }
+    });
+
+    document.getElementById("copyLinkBtn").addEventListener("click", (e) => {
+      if (currentSession) copyToClipboard(joinLinkFor(currentSession.id), e.target.closest("button"));
     });
 
     document.querySelectorAll(".tab").forEach(tab => {
@@ -800,10 +1144,7 @@
     document.getElementById("formTeamsBtn").addEventListener("click", generateTeams);
     document.getElementById("refreshTeamsBtn").addEventListener("click", generateTeams);
     document.getElementById("exportTeamsBtn").addEventListener("click", exportTeamsCsv);
-    document.getElementById("teamSize").addEventListener("change", () => {
-      localStorage.setItem("mbaTeamSize", document.getElementById("teamSize").value);
-      updateTeamCount();
-    });
+    document.getElementById("teamSize").addEventListener("change", updateTeamCount);
     document.getElementById("searchInput").addEventListener("input", (e) => {
       searchTerm = e.target.value;
       renderStudents();
@@ -812,18 +1153,23 @@
       const editEmail = e.target.closest("[data-edit]")?.getAttribute("data-edit");
       const removeEmail = e.target.closest("[data-remove]")?.getAttribute("data-remove");
       if (editEmail) {
-        const s = await lookupStudent(editEmail);
+        const s = await lookupStudent(currentSession.id, editEmail);
         if (s) {
+          [1, 2, 3].forEach(n => populateSkillSelect(document.getElementById("skill" + n), currentSession.skills));
           document.getElementById("emailInput").value = s.email;
           loadStudentIntoForm(s);
           editingExisting = true;
           updateFormMode();
-          document.getElementById("lockBtn").click();
+          adminEditReturnSessionId = currentSession.id;
+          hideAllViews();
+          document.getElementById("joinView").classList.remove("hidden");
+          document.getElementById("backToRosterBtn").classList.remove("hidden");
+          document.getElementById("sessionTitleLine").textContent = "Editing " + s.name + " -- Session: " + currentSession.title;
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       } else if (removeEmail) {
         if (confirm("Remove this student from the roster?")) {
-          await removeStudent(removeEmail);
+          await removeStudent(currentSession.id, removeEmail);
         }
       }
     });
@@ -832,17 +1178,10 @@
       const b = document.getElementById("cloudBanner");
       b.classList.remove("hidden");
       b.classList.add("info");
-      b.innerHTML = "<strong>Local-only mode.</strong> Firebase isn't configured yet, so submissions only stay on this device/browser and won't be shared with other visitors. See README.md to enable a shared roster.";
+      b.innerHTML = "<strong>Local-only mode.</strong> Firebase isn't configured yet, so sessions and submissions only stay on this device/browser and won't be shared with other visitors. See README.md to enable a shared roster.";
     }
 
-    if (sessionStorage.getItem("mbaAdminUnlocked") === "1") {
-      openAdmin();
-    }
-
-    const savedTeamSize = localStorage.getItem("mbaTeamSize");
-    if (savedTeamSize) document.getElementById("teamSize").value = savedTeamSize;
-
-    startListening();
+    boot();
   </script>
 </body>
 </html>

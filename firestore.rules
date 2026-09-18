@@ -3,27 +3,41 @@ rules_version = '2';
 // Paste this into Firebase Console > Firestore Database > Rules, then Publish.
 // Replace YOUR_CLASS_CODE with the exact same value you put in firebase-config.js (window.CLASS_CODE).
 //
+// Data model: each class project is a "session" doc (title + its own skill list).
+// Each session has a "students" subcollection, one doc per student, keyed by their
+// lowercased email so a repeat submission updates their own entry instead of
+// duplicating it.
+//
 // What this allows, by design (no backend = no real auth):
-//   - Anyone with the link can read the roster (needed so the static admin dashboard
-//     can list students without a server).
-//   - Anyone can create/update a student doc, but ONLY if they include the correct
-//     classCode in the write. This is a deterrent, not real security -- the code is
-//     visible in the page's JS source to anyone who looks.
-//   - Each document is keyed by the student's lowercased email, so submitting the
-//     same email again overwrites (updates) their own entry instead of duplicating it.
-//   - Hard deletes are blocked entirely. "Remove" in the app soft-deletes by setting
-//     removed: true (an update, not a delete), because Firestore delete requests carry
-//     no data to check a classCode against, so there'd be no way to gate a real delete.
+//   - Anyone can read a session or its roster if they know its ID (the join link).
+//     There's no listing of all session IDs to the public -- only the instructor
+//     portal (gated by the class code client-side) lists them.
+//   - Creating/editing a SESSION (the instructor action) requires the class code.
+//   - Submitting/updating a STUDENT within a session does NOT require the class
+//     code -- any student with the join link can submit or update their own entry.
+//     This is intentional: students shouldn't need the instructor's code just to join.
+//   - Hard deletes are blocked entirely. "Remove"/"Archive" in the app soft-delete by
+//     setting removed/archived flags (an update, not a delete), because delete
+//     requests carry no data for a rule to check.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /students/{studentEmail} {
+    match /sessions/{sessionId} {
       allow read: if true;
       allow create, update: if request.resource.data.classCode == "YOUR_CLASS_CODE"
-                   && request.resource.data.name is string
-                   && request.resource.data.name.size() > 0
-                   && request.resource.data.email is string
-                   && request.resource.data.email.lower() == studentEmail;
+                   && request.resource.data.title is string
+                   && request.resource.data.title.size() > 0
+                   && request.resource.data.skills is list
+                   && request.resource.data.skills.size() > 0;
       allow delete: if false;
+
+      match /students/{studentEmail} {
+        allow read: if true;
+        allow create, update: if request.resource.data.name is string
+                     && request.resource.data.name.size() > 0
+                     && request.resource.data.email is string
+                     && request.resource.data.email.lower() == studentEmail;
+        allow delete: if false;
+      }
     }
   }
 }
