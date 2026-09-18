@@ -23,7 +23,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /sessions/{sessionId} {
       allow read: if true;
-      allow create, update: if request.resource.data.classCode == "YOUR_CLASS_CODE"
+      allow create, update: if request.resource.data.classCode == "gt-mba-fall26-q4x9"
                    && request.resource.data.title is string
                    && request.resource.data.title.size() > 0
                    && request.resource.data.skills is list
