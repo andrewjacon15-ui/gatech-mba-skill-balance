@@ -52,6 +52,9 @@
     input:focus, select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(0, 48, 87, 0.12); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    .rank-slider { display: flex; align-items: center; gap: 8px; }
+    .rank-slider input[type="range"] { flex: 1; accent-color: var(--navy); padding: 0; }
+    .rank-value { font-weight: 700; color: var(--navy); min-width: 14px; text-align: center; font-size: 13px; }
     button { padding: 10px 16px; background: var(--navy); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s; }
     button:hover { background: var(--navy-light); }
     button.secondary { background: var(--white); color: var(--navy); border: 1px solid var(--navy); }
@@ -97,7 +100,6 @@
     .team-members { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
     .member { padding: 8px; background: var(--white); border-radius: 6px; border: 0.5px solid var(--border); font-size: 12px; }
     .member-name { font-weight: 700; color: var(--navy); margin-bottom: 2px; }
-    .member-conc { color: var(--gold-dark); font-size: 11px; margin-bottom: 4px; font-weight: 600; }
     .member-skills { color: var(--text-muted); line-height: 1.4; font-size: 11px; margin-bottom: 4px; }
     .member-contact { color: var(--text-muted); font-size: 11px; }
     .member-contact i { width: 12px; }
@@ -175,15 +177,9 @@
             </div>
           </div>
 
-          <div class="grid-2" style="margin-bottom: 1rem;">
-            <div class="form-group">
-              <label>Name</label>
-              <input type="text" id="nameInput" placeholder="John Smith">
-            </div>
-            <div class="form-group">
-              <label>Concentration</label>
-              <input type="text" id="concInput" placeholder="Finance">
-            </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Name</label>
+            <input type="text" id="nameInput" placeholder="John Smith">
           </div>
 
           <div class="form-group" style="margin-bottom: 0.5rem;">
@@ -191,18 +187,27 @@
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div class="grid-3">
                 <select id="skill1"><option value="">Select skill</option></select>
-                <input type="number" id="skill1Rank" min="1" max="5" value="3">
+                <div class="rank-slider">
+                  <input type="range" id="skill1Rank" min="1" max="5" step="1" value="3">
+                  <span class="rank-value" id="skill1RankValue">3</span>
+                </div>
               </div>
               <div class="grid-3">
                 <select id="skill2"><option value="">Select skill</option></select>
-                <input type="number" id="skill2Rank" min="1" max="5" value="3">
+                <div class="rank-slider">
+                  <input type="range" id="skill2Rank" min="1" max="5" step="1" value="3">
+                  <span class="rank-value" id="skill2RankValue">3</span>
+                </div>
               </div>
               <div class="grid-3">
                 <select id="skill3"><option value="">Select skill</option></select>
-                <input type="number" id="skill3Rank" min="1" max="5" value="3">
+                <div class="rank-slider">
+                  <input type="range" id="skill3Rank" min="1" max="5" step="1" value="3">
+                  <span class="rank-value" id="skill3RankValue">3</span>
+                </div>
               </div>
             </div>
-            <div class="field-error" id="formError">Please enter a valid email, name, concentration, and 3 different skills.</div>
+            <div class="field-error" id="formError">Please enter a valid email, name, and 3 different skills.</div>
             <div class="field-success" id="formSuccess">Thanks! Your info has been saved.</div>
           </div>
 
@@ -259,7 +264,7 @@
         <div id="students" class="view active">
           <h3 style="margin-bottom: 1rem; font-size: 15px; font-weight: 700; color: var(--navy);">Cohort (<span id="studentCount">0</span> students)</h3>
           <div class="search-row">
-            <input type="text" id="searchInput" placeholder="Search by name or concentration...">
+            <input type="text" id="searchInput" placeholder="Search by name...">
             <button class="secondary" id="copyLinkBtn"><i class="ti ti-link"></i> Copy join link</button>
           </div>
           <div class="card-grid" id="studentList"></div>
@@ -580,9 +585,14 @@
     // ---------------------------------------------------------------------
     // Join form (public) -- self-serve submit, with auto-load-to-edit by email
     // ---------------------------------------------------------------------
+    function syncRankLabels() {
+      [1, 2, 3].forEach(n => {
+        document.getElementById("skill" + n + "RankValue").textContent = document.getElementById("skill" + n + "Rank").value;
+      });
+    }
+
     function clearForm() {
       document.getElementById("nameInput").value = "";
-      document.getElementById("concInput").value = "";
       document.getElementById("phoneInput").value = "";
       document.getElementById("skill1").value = "";
       document.getElementById("skill2").value = "";
@@ -590,11 +600,11 @@
       document.getElementById("skill1Rank").value = "3";
       document.getElementById("skill2Rank").value = "3";
       document.getElementById("skill3Rank").value = "3";
+      syncRankLabels();
     }
 
     function loadStudentIntoForm(s) {
       document.getElementById("nameInput").value = s.name || "";
-      document.getElementById("concInput").value = s.concentration || "";
       document.getElementById("phoneInput").value = s.phone || "";
       document.getElementById("skill1").value = s.skill1 || "";
       document.getElementById("skill1Rank").value = s.skill1Rank || 3;
@@ -602,6 +612,7 @@
       document.getElementById("skill2Rank").value = s.skill2Rank || 3;
       document.getElementById("skill3").value = s.skill3 || "";
       document.getElementById("skill3Rank").value = s.skill3Rank || 3;
+      syncRankLabels();
     }
 
     async function onEmailBlur() {
@@ -634,7 +645,6 @@
 
       const email = document.getElementById("emailInput").value.trim();
       const name = document.getElementById("nameInput").value.trim();
-      const concentration = document.getElementById("concInput").value.trim();
       const phone = document.getElementById("phoneInput").value.trim();
       const skill1 = document.getElementById("skill1").value;
       const skill1Rank = parseInt(document.getElementById("skill1Rank").value);
@@ -646,7 +656,7 @@
       const chosenSkills = [skill1, skill2, skill3].filter(Boolean);
       const hasDuplicates = new Set(chosenSkills).size !== chosenSkills.length;
 
-      if (!name || !concentration || !isValidEmail(email) || hasDuplicates || !currentSession) {
+      if (!name || !isValidEmail(email) || hasDuplicates || !currentSession) {
         errorEl.classList.add("show");
         return;
       }
@@ -655,7 +665,7 @@
       addBtn.disabled = true;
       try {
         await saveStudent(currentSession.id, {
-          name, email, phone, concentration,
+          name, email, phone,
           skill1, skill1Rank, skill2, skill2Rank, skill3, skill3Rank
         });
         successEl.classList.add("show");
@@ -802,9 +812,7 @@
       const list = document.getElementById("studentList");
       list.innerHTML = "";
       const term = searchTerm.trim().toLowerCase();
-      const filtered = students.filter(s =>
-        !term || s.name.toLowerCase().includes(term) || s.concentration.toLowerCase().includes(term)
-      );
+      const filtered = students.filter(s => !term || s.name.toLowerCase().includes(term));
 
       if (students.length === 0) {
         list.innerHTML = '<div class="empty-state"><i class="ti ti-users" style="font-size: 28px;"></i><div style="margin-top: 8px;">No students yet. Share the join link above.</div></div>';
@@ -817,7 +825,6 @@
           card.className = "card";
           card.innerHTML = `
             <h4>${s.name}</h4>
-            <p><strong>${s.concentration}</strong></p>
             <p style="font-size: 12px;"><i class="ti ti-mail"></i> ${s.email}</p>
             ${s.phone ? `<p style="font-size: 12px;"><i class="ti ti-phone"></i> ${s.phone}</p>` : ""}
             <p style="margin: 8px 0; color: var(--text-muted); font-size: 12px;">${skillsText || "No skills"}</p>
@@ -880,8 +887,7 @@
 
     // Greedy skill-balancing optimizer: assigns strongest students first, each to
     // whichever open team gains the most new skill coverage from them (ties broken
-    // by concentration diversity, then by lowest total team skill score so overall
-    // strength stays balanced across teams).
+    // by lowest total team skill score so overall strength stays balanced across teams).
     function generateTeams() {
       if (students.length === 0) {
         alert("No students yet");
@@ -900,7 +906,6 @@
       const buckets = Array.from({ length: numTeams }, () => ({
         members: [],
         skillSet: new Set(),
-        concSet: new Set(),
         totalScore: 0
       }));
 
@@ -911,17 +916,12 @@
           const gainB = entry.skills.filter(sk => !b.skillSet.has(sk)).length;
           if (gainB !== gainA) return gainB - gainA;
 
-          const concA = a.concSet.has(entry.student.concentration) ? 1 : 0;
-          const concB = b.concSet.has(entry.student.concentration) ? 1 : 0;
-          if (concA !== concB) return concA - concB;
-
           return a.totalScore - b.totalScore;
         });
 
         const target = eligible[0];
         target.members.push(entry.student);
         entry.skills.forEach(sk => target.skillSet.add(sk));
-        target.concSet.add(entry.student.concentration);
         target.totalScore += entry.score;
       });
 
@@ -935,7 +935,7 @@
       const subject = `Your MBA Team Assignment - Team ${index + 1}`;
       const lines = [`Hi team,`, ``, `You've been assigned to Team ${index + 1}. Roster:`, ``];
       team.forEach(s => {
-        lines.push(`- ${s.name} (${s.concentration}) - ${s.email}${s.phone ? " - " + s.phone : ""}`);
+        lines.push(`- ${s.name} - ${s.email}${s.phone ? " - " + s.phone : ""}`);
         lines.push(`  Skills: ${studentSkills(s).join(", ") || "None listed"}`);
       });
       lines.push(``, `Best,`);
@@ -955,11 +955,9 @@
 
       teams.forEach((team, i) => {
         const skillsCovered = new Set();
-        const concentrations = new Set();
         let totalScore = 0;
         team.forEach(s => {
           studentSkills(s).forEach(sk => skillsCovered.add(sk));
-          concentrations.add(s.concentration);
           totalScore += studentScore(s);
         });
         const avgScore = Math.round((totalScore / team.length) * 10) / 10;
@@ -970,7 +968,6 @@
           membersHtml += `
             <div class="member">
               <div class="member-name">${s.name}</div>
-              <div class="member-conc">${s.concentration}</div>
               <div class="member-skills">${skills || "No skills"}</div>
               <div class="member-contact"><i class="ti ti-mail"></i> ${s.email}${s.phone ? ` &middot; <i class="ti ti-phone"></i> ${s.phone}` : ""}</div>
             </div>
@@ -984,7 +981,6 @@
             <h3>Team ${i + 1} (${team.length} members)</h3>
             <div class="team-badges">
               <span class="badge">${skillsCovered.size} skills</span>
-              <span class="badge">${concentrations.size} concentrations</span>
               <span class="badge">avg score ${avgScore}</span>
             </div>
           </div>
@@ -1003,12 +999,12 @@
         alert("Generate teams first");
         return;
       }
-      let csv = "Team,Name,Email,Phone,Concentration,Skill 1,Rank,Skill 2,Rank,Skill 3,Rank\n";
+      let csv = "Team,Name,Email,Phone,Skill 1,Rank,Skill 2,Rank,Skill 3,Rank\n";
       const esc = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
       teams.forEach((team, i) => {
         team.forEach(s => {
           csv += [
-            i + 1, esc(s.name), esc(s.email), esc(s.phone), esc(s.concentration),
+            i + 1, esc(s.name), esc(s.email), esc(s.phone),
             esc(s.skill1), s.skill1 ? s.skill1Rank : "",
             esc(s.skill2), s.skill2 ? s.skill2Rank : "",
             esc(s.skill3), s.skill3 ? s.skill3Rank : ""
@@ -1141,6 +1137,11 @@
 
     document.getElementById("addBtn").addEventListener("click", addStudent);
     document.getElementById("emailInput").addEventListener("blur", onEmailBlur);
+    [1, 2, 3].forEach(n => {
+      document.getElementById("skill" + n + "Rank").addEventListener("input", (e) => {
+        document.getElementById("skill" + n + "RankValue").textContent = e.target.value;
+      });
+    });
     document.getElementById("formTeamsBtn").addEventListener("click", generateTeams);
     document.getElementById("refreshTeamsBtn").addEventListener("click", generateTeams);
     document.getElementById("exportTeamsBtn").addEventListener("click", exportTeamsCsv);

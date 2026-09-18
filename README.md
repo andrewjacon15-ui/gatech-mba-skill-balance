@@ -10,12 +10,12 @@ multiple class projects. No server required -- deploys straight to GitHub Pages.
   its own custom list of relevant skills. Every session gets its own shareable join
   link and its own roster.
 - **Public join form** (what students see, via a session's join link): name, email,
-  phone, concentration, and top 3 skills (from that session's skill list) with
-  self-ratings. Typing an email that's already submitted auto-loads that student's
-  info so they can update it instead of creating a duplicate.
+  optional phone, and top 3 skills (from that session's skill list) rated 1-5 with a
+  slider. Typing an email that's already submitted auto-loads that student's info so
+  they can update it instead of creating a duplicate.
 - **Roster / Skill Map / Teams**, per session: live skill distribution chart, and a
-  "Generate optimized teams" button that balances skill coverage, skill strength, and
-  concentration diversity across teams (not random).
+  "Generate optimized teams" button that balances skill coverage and skill strength
+  across teams (not random).
 - **Email teams**: each generated team has an "Email this team" button that opens a
   pre-filled draft (To: all members, roster in the body) in your default mail app.
   If Outlook is your default mail app, that's what opens -- you review and hit Send.
