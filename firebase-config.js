@@ -17,7 +17,7 @@ window.FIREBASE_CONFIG = {
 };
 
 // A shared passcode required to write to the roster (lightweight spam deterrent for
-// public write rules) AND to unlock the instructor dashboard in the app itself.
+// public write rules) AND to unlock the admin dashboard in the app itself.
 // This is NOT strong security -- anyone who reads the page source can see it. It just
 // keeps randoms who don't have your class code from writing garbage into your roster
 // or casually browsing the class list. Set the SAME value in firestore.rules.

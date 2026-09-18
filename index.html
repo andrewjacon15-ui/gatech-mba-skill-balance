@@ -216,21 +216,21 @@
 
       <div id="sessionNotFoundView" class="hidden empty-state">
         <i class="ti ti-alert-triangle" style="font-size: 28px;"></i>
-        <div style="margin-top: 8px;">This session link isn't valid or has been closed. Check the link with your instructor.</div>
+        <div style="margin-top: 8px;">This session link isn't valid or has been closed. Check the link with your class admin.</div>
       </div>
 
       <!-- ============ Admin entry: shown when there's no ?session= in the URL ============ -->
       <div id="adminEntryView" class="hidden" style="text-align: center; padding: 2rem 1rem;">
         <i class="ti ti-lock" style="font-size: 32px; color: var(--navy);"></i>
-        <p style="margin: 1rem 0; color: var(--text-muted); font-size: 14px;">This is the instructor portal. Students should use the session link you share with them.</p>
-        <button id="adminEntryBtn">Sign in as instructor</button>
+        <p style="margin: 1rem 0; color: var(--text-muted); font-size: 14px;">This is the admin portal. Students should use the session link you share with them.</p>
+        <button id="adminEntryBtn">Sign in as admin</button>
       </div>
 
       <!-- ============ Admin portal: session list ============ -->
       <div id="sessionsListView" class="hidden">
         <div class="dash-header">
           <div>
-            <h2><i class="ti ti-lock-open"></i> Instructor portal</h2>
+            <h2><i class="ti ti-lock-open"></i> Admin portal</h2>
             <div class="sub">Create a session for each class project, then share its join link with students.</div>
           </div>
           <button class="secondary" id="lockBtn"><i class="ti ti-lock"></i> Lock</button>
@@ -297,7 +297,7 @@
   <!-- Passcode modal -->
   <div id="passcodeModal" class="modal-overlay hidden">
     <div class="modal">
-      <h3><i class="ti ti-lock"></i> Instructor access</h3>
+      <h3><i class="ti ti-lock"></i> Admin access</h3>
       <div class="form-group">
         <label>Class code</label>
         <input type="password" id="passcodeInput" placeholder="Enter your class code">
@@ -364,7 +364,7 @@
     let currentSession = null;   // {id, title, skills, ...} -- the session being viewed/joined
     let skillsDraft = [];        // working copy of skills while the session modal is open
     let editingSessionId = null; // set when the session modal is editing (not creating)
-    let adminEditReturnSessionId = null; // set when an instructor is editing a student on their behalf
+    let adminEditReturnSessionId = null; // set when an admin is editing a student on their behalf
     let unsubStudents = null;
 
     function genId() {
@@ -677,7 +677,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // Instructor portal: session list
+    // Admin portal: session list
     // ---------------------------------------------------------------------
     async function showSessionsList() {
       hideAllViews();
@@ -1032,7 +1032,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // Instructor passcode gate (deterrent only -- see firebase-config.js notes)
+    // Admin passcode gate (deterrent only -- see firebase-config.js notes)
     // ---------------------------------------------------------------------
     function requestAdmin(onSuccess) {
       if (!CLASS_CODE || sessionStorage.getItem("mbaAdminUnlocked") === "1") {

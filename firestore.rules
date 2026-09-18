@@ -10,12 +10,12 @@ rules_version = '2';
 //
 // What this allows, by design (no backend = no real auth):
 //   - Anyone can read a session or its roster if they know its ID (the join link).
-//     There's no listing of all session IDs to the public -- only the instructor
+//     There's no listing of all session IDs to the public -- only the admin
 //     portal (gated by the class code client-side) lists them.
-//   - Creating/editing a SESSION (the instructor action) requires the class code.
+//   - Creating/editing a SESSION (the admin action) requires the class code.
 //   - Submitting/updating a STUDENT within a session does NOT require the class
 //     code -- any student with the join link can submit or update their own entry.
-//     This is intentional: students shouldn't need the instructor's code just to join.
+//     This is intentional: students shouldn't need the admin's code just to join.
 //   - Hard deletes are blocked entirely. "Remove"/"Archive" in the app soft-delete by
 //     setting removed/archived flags (an update, not a delete), because delete
 //     requests carry no data for a rule to check.

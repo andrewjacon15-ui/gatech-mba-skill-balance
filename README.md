@@ -5,7 +5,7 @@ multiple class projects. No server required -- deploys straight to GitHub Pages.
 
 ## How it works
 
-- **Instructor portal** (visit the site with no `?session=` in the URL, gated by a
+- **Admin portal** (visit the site with no `?session=` in the URL, gated by a
   class code): create a **session** per class project, each with its own title and
   its own custom list of relevant skills. Every session gets its own shareable join
   link and its own roster.
@@ -49,18 +49,18 @@ store data centrally -- it just serves static files).
 **Security note:** this is a no-backend classroom tool, so there's no real login
 system. The class code is a light deterrent (it's visible in the page's source to
 anyone who looks), not real security -- don't use it for anything sensitive.
-- Creating or editing a *session* (an instructor action) requires the class code.
+- Creating or editing a *session* (an admin action) requires the class code.
 - Submitting to a *session's roster* (a student action) does NOT require the class
   code -- anyone with a session's join link can submit or update their own entry,
   by design, so students don't need your code just to join.
-- There's no public listing of session IDs; only the instructor portal (gated
+- There's no public listing of session IDs; only the admin portal (gated
   client-side by the class code) lists them.
 - Hard deletes are disabled entirely (Remove/Archive just hide an entry) so a
   bad-faith request can't wipe data.
 
 ## Using it
 
-1. Open the site with no `?session=` param, click **Sign in as instructor**, enter
+1. Open the site with no `?session=` param, click **Sign in as admin**, enter
    your class code.
 2. Click **New session**, give it a title (e.g. "Fall 2026 Consulting Practicum"),
    and set the skills relevant to that project (starts pre-filled with a default MBA
